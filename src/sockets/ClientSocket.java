@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Scanner;
 
 /**
  *
@@ -16,6 +17,7 @@ public class ClientSocket {
     private DataInputStream in;
     private DataOutputStream out;
     private Socket sc;
+    private Scanner scanner;
     
     
     public ClientSocket(String host, int port) {
@@ -33,8 +35,9 @@ public class ClientSocket {
             String message ="CLiente X. Hola";
             out.writeUTF(message);
             
-            message = in.readUTF();
-            System.out.println(message);
+            scanner = new Scanner(System.in);
+            String valor = scanner.next();
+            sc.close();
             
         } catch (IOException ex) {
             System.out.println("Error durante intento de conexion");

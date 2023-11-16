@@ -11,7 +11,6 @@ public class Sockets {
      */
     public static void main(String[] args) {
         SocketServer socket = new SocketServer(5000);
-        socket.addConnectionListener(new MyConnectionListener());
         socket.startServer();
     }
     

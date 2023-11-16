@@ -20,10 +20,11 @@ import java.util.UUID;
  *
  * @author daniel
  */
-public class SocketServer {
+public class SocketServer implements SocketEventListener{
     private int port;
-    private List<SocketEventListener> connectionListeners = new ArrayList<>();
-    private Map<UUID, Socket> listClients = new HashMap<>();
+    private Map<UUID, ThreadServerSocket> listClients = new HashMap<>();
+    private SocketEventServer socketEvent;
+    private ServerSocket servidor;
     
     public SocketServer() {
         this.port = 8000;
@@ -33,36 +34,37 @@ public class SocketServer {
         this.port = port;
     }
     
-    public void addConnectionListener(SocketEventListener listener) {
-        connectionListeners.add(listener);
-    }
+
     
-    public void startServer() {
-            ServerSocket servidor = null;
-            Socket sc = null;
-            
+    public void startServer() {     
         try {
             servidor = new ServerSocket(port);
             System.out.println("Servidor Iniciado");
-              
-            while(true){
-                sc = servidor.accept();
-                notifyConnectionListeners(sc);
-                listClients.put(UUID.randomUUID(), sc);
-                ThreadServerSocket client = new ThreadServerSocket(sc);
-                client.start();
-                
-                System.out.println("El numero de clientes es "+listClients.size());
-            }
-            
+            socketEvent = new SocketEventServer(servidor);
+            socketEvent.addConnectionListener(this);
+            socketEvent.start();
         } catch (IOException ex) {
-            System.out.println("Ocurrio un erro durante la conexion  "+ ex.getMessage());
+            System.out.println("Ocurrio un error durante la conexion  "+ ex.getMessage());
         }
     }
     
-    private void notifyConnectionListeners(Socket socket) {
-        for (SocketEventListener listener : connectionListeners) {
-            listener.onConnectionEstablished(socket);
-        }
+
+
+    @Override
+    public void onConnectionEstablished(Socket socket) {
+        UUID uuid = UUID.randomUUID();
+        ThreadServerSocket client = new ThreadServerSocket(socket, uuid);
+        client.addDisconnectionListener(this);
+        listClients.put(uuid, client);
+        client.start();
+        
+        System.out.println("Numero de usuarios "+listClients.size());
+    }
+
+    @Override
+    public void onDisconnect(Socket socket, UUID uuid) {
+        listClients.remove(uuid);
+        
+        System.out.println("Usuario desconectado ,Nro de usuarios " + listClients.size());
     }
 }
