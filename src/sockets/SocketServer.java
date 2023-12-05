@@ -5,13 +5,9 @@
 
 package sockets;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.ServerSocket;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -39,7 +35,7 @@ public class SocketServer implements SocketEventListener{
     public void startServer() {     
         try {
             servidor = new ServerSocket(port);
-            System.out.println("Servidor Iniciado");
+            System.out.println("Servidor Iniciado en el puerto " + this.port);
             socketEvent = new SocketEventServer(servidor);
             socketEvent.addConnectionListener(this);
             socketEvent.start();
